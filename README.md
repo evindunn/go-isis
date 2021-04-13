@@ -20,7 +20,7 @@
 
 # Usage
 This example uses [GoDotEnv](https://github.com/joho/godotenv)
-in order to use the following file in place of step 3 above:
+in order to use the following file in place of step 5 above:
 
 .env:
 ```dotenv
