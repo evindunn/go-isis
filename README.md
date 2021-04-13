@@ -33,11 +33,11 @@ main.go:
 package main
 
 import (
-	"fmt"
-	"github.com/joho/godotenv"
-	"github.com/evindunn/go-isis"
-	"os"
-	"strings"
+   "fmt"
+   "github.com/evindunn/go-isis"
+   "github.com/joho/godotenv"
+   "os"
+   "strings"
 )
 
 func main() {
