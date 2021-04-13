@@ -1,24 +1,31 @@
 package isis
 
-import "sync"
+import (
+	"runtime"
+	"sync"
+)
 
 type Pool struct {
-	waitGroup *sync.WaitGroup
-	errors chan error
+	resultGroup  *sync.WaitGroup
+	errors       chan error
+	poolSize	 chan struct{}
 }
 
 func (pool *Pool) run(cmd string, args map[string]string) {
-	defer pool.waitGroup.Done()
+	defer pool.resultGroup.Done()
+
+	pool.poolSize <- struct{}{}
 	pool.errors <- Isis(cmd, args)
+	<- pool.poolSize
 }
 
 func (pool *Pool) Run(cmd string, args map[string]string) {
-	pool.waitGroup.Add(1)
+	pool.resultGroup.Add(1)
 	go pool.run(cmd, args)
 }
 
 func (pool *Pool) Wait() []error {
-	pool.waitGroup.Wait()
+	pool.resultGroup.Wait()
 	close(pool.errors)
 
 	errs := make([]error, 0)
@@ -31,7 +38,8 @@ func (pool *Pool) Wait() []error {
 
 func NewPool() *Pool {
 	return &Pool{
-		waitGroup: &sync.WaitGroup{},
-		errors:    make(chan error, 1024),
+		poolSize: 	  make(chan struct{}, runtime.NumCPU()),
+		resultGroup:  &sync.WaitGroup{},
+		errors:       make(chan error, 1024),
 	}
 }
